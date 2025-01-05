@@ -77,7 +77,7 @@ class StockData:
         for n in range(int((end_date - start_date).days)):
             yield start_date + timedelta(n)
 
-    def date_range_5_min(self, start_date, end_date):
+    def __date_range_5_min(self, start_date, end_date):
         market_open = time(9, 15)  # 9:15 AM
         market_close = time(15, 30)  # 3:30 PM
     

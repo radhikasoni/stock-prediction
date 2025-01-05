@@ -83,9 +83,15 @@ class StockData:
     def pseudo_random(self):
         return random.uniform(0.01, 0.03)
 
-    def generate_future_data(self, time_steps, min_max, start_date, end_date, latest_close_price):
+    def generate_future_data(self, time_steps, min_max, start_date, end_date, latest_close_price, latest_open_price, latest_low_price, latest_high_price, latest_volume_price, latest_adj_close_price):
         x_future = []
-        y_future = []
+        c_future = []
+        ad_c_future = []
+        o_future = []
+        l_future = []
+        h_future = []
+        v_future = []
+
 
         # We need to provide a randomisation algorithm for the close price
         # This is my own implementation and it will provide a variation of the
@@ -100,12 +106,34 @@ class StockData:
             random_slope = direction * (self.pseudo_random())
             #print(random_slope)
             original_price = original_price + (original_price * random_slope)
+            latest_open_price = latest_open_price + (latest_open_price * random_slope)
+            latest_low_price = latest_low_price + (latest_low_price * random_slope)
+            latest_high_price = latest_high_price + (latest_high_price * random_slope)
+            latest_volume_price = latest_volume_price + (latest_volume_price * random_slope)
+            latest_adj_close_price = latest_adj_close_price + (latest_adj_close_price * random_slope)
+
             #print(original_price)
             if original_price < 0:
                 original_price = 0
-            y_future.append(original_price)
+            if latest_open_price < 0:
+                latest_open_price = 0
+            if latest_low_price < 0:
+                latest_low_price = 0
+            if latest_high_price < 0:
+                latest_high_price = 0
+            if latest_volume_price < 0:
+                latest_volume_price = 0
+            if latest_adj_close_price < 0:
+                latest_adj_close_price = 0
 
-        test_data = pd.DataFrame({'Datetime': x_future, 'Close': y_future})
+            c_future.append(original_price)
+            h_future.append(latest_high_price)
+            l_future.append(latest_low_price)
+            o_future.append(latest_open_price)
+            v_future.append(latest_volume_price)
+            ad_c_future.append(latest_adj_close_price)
+
+        test_data = pd.DataFrame({'Datetime': x_future, 'Close': c_future, 'High': h_future, 'Low': l_future, 'Open': o_future, 'Volume': v_future, 'Adj Close': ad_c_future})
         test_data = test_data.set_index('Datetime')
 
         test_scaled = min_max.fit_transform(test_data)

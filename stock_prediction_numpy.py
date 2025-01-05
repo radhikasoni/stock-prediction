@@ -1,7 +1,7 @@
 import os
 
 import numpy as np
-from datetime import timedelta
+from datetime import timedelta, time
 import random
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
@@ -77,6 +77,21 @@ class StockData:
         for n in range(int((end_date - start_date).days)):
             yield start_date + timedelta(n)
 
+    def __date_range_5_min(self, start_date, end_date):
+        market_open = time(9, 15)  # 9:15 AM
+        market_close = time(15, 30)  # 3:30 PM
+    
+        current_date = start_date
+        while current_date <= end_date:
+            # Generate intraday 5-minute intervals within trading hours
+            current_time = datetime.combine(current_date.date(), market_open)
+            while current_time.time() <= market_close:
+                yield current_time
+                current_time += timedelta(minutes=5)
+            
+            # Move to the next day
+            current_date += timedelta(days=1)
+
     def negative_positive_random(self):
         return 1 if random.random() < 0.5 else -1
 
@@ -100,7 +115,7 @@ class StockData:
 
         original_price = latest_close_price
 
-        for single_date in self.__date_range(start_date, end_date):
+        for single_date in self.__date_range_5_min(start_date, end_date):
             x_future.append(single_date)
             direction = self.negative_positive_random()
             random_slope = direction * (self.pseudo_random())

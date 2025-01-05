@@ -77,7 +77,7 @@ class StockData:
         for n in range(int((end_date - start_date).days)):
             yield start_date + timedelta(n)
 
-    def __date_range_5_min(self, start_date, end_date):
+    def date_range_5_min(self, start_date, end_date):
         market_open = time(9, 15)  # 9:15 AM
         market_close = time(15, 30)  # 3:30 PM
     
@@ -86,7 +86,8 @@ class StockData:
             # Generate intraday 5-minute intervals within trading hours
             current_time = datetime.combine(current_date.date(), market_open)
             while current_time.time() <= market_close:
-                yield current_time
+                # Convert to pandas Timestamp with UTC timezone
+                yield pd.Timestamp(current_time, tz='UTC')
                 current_time += timedelta(minutes=5)
             
             # Move to the next day

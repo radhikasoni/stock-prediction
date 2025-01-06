@@ -1,11 +1,11 @@
 import os
 
 import numpy as np
-from datetime import timedelta
+from datetime import timedelta, time
 import random
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
-from datetime import timedelta, time
+from datetime import datetime
 import yfinance as yf
 
 

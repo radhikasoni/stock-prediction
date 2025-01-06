@@ -124,7 +124,7 @@ class StockData:
 
         original_price = latest_close_price
 
-        for single_date in self..__date_range_5_min(start_date, end_date):
+        for single_date in self.__date_range_5_min(start_date, end_date):
             x_future.append(single_date)
             direction = self.negative_positive_random()
             random_slope = direction * (self.pseudo_random())

@@ -52,8 +52,8 @@ class StockData:
         data.to_csv(os.path.join(project_folder, 'downloaded_data_'+self._stock.get_ticker()+'.csv'))
         #print(data)
 
-        training_data = data[data['Datetime'] < self._stock.get_validation_date()][predict].copy()
-        test_data = data[data['Datetime'] >= self._stock.get_validation_date()][predict].copy()
+        training_data = data[data['Datetime'] < pd.Timestamp(self._stock.get_validation_date()).tz_localize('UTC')][predict].copy()
+        test_data = data[data['Datetime'] >= pd.Timestamp(self._stock.get_validation_date()).tz_localize('UTC')][predict].copy()
         training_data = training_data.set_index('Datetime')
         # Set the data frame index using column Date
         test_data = test_data.set_index('Datetime')

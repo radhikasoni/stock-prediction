@@ -9,9 +9,6 @@ from stock_prediction_class import StockPrediction
 from stock_prediction_lstm import LongShortTermMemory
 from stock_prediction_numpy import StockData
 from stock_prediction_plotter import Plotter
-from stock_prediction_readme_generator import ReadmeGenerator
-
-os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin/'
 
 
 def train_LSTM_network(stock):
@@ -55,9 +52,6 @@ def train_LSTM_network(stock):
     test_predictions_baseline = test_predictions_baseline.round(decimals=0)
     test_predictions_baseline.index = test_data.index
     plotter.project_plot_predictions(test_predictions_baseline, test_data)
-
-    generator = ReadmeGenerator(stock.get_github_url(), stock.get_token(), data.get_stock_short_name())
-    generator.write()
 
     print("prediction is finished")
 

@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 
 class Plotter:
-    def __init__(self, blocking, project_folder, short_name, currency, stock_ticker, predict):
+    def __init__(self, blocking, project_folder, short_name, currency, stock_ticker, predict_data):
         self.blocking = blocking
         self.project_folder = project_folder
         self.short_name = short_name

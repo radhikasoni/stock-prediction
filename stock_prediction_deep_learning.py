@@ -14,7 +14,7 @@ os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin/'
 
 def train_LSTM_network(stock):
     data = StockData(stock)
-    plotter = Plotter(True, stock.get_project_folder(), data.get_stock_short_name(), data.get_stock_currency(), stock.get_ticker(), stock.predict_data())
+    plotter = Plotter(True, stock.get_project_folder(), data.get_stock_short_name(), data.get_stock_currency(), stock.get_ticker(), stock.get_predict_data())
     (x_train, y_train), (x_test, y_test), (training_data, test_data) = data.download_transform_to_numpy(stock.get_time_steps(), stock.get_project_folder(), stock.get_predict())
     plotter.plot_histogram_data_split(training_data, test_data, stock.get_validation_date())
 
@@ -62,6 +62,7 @@ if __name__ == '__main__':
     parser.add_argument("-batch_size", default="10")
     parser.add_argument("-time_steps", default="3")
     parser.add_argument("-predict", default=['Datetime', 'Close'])
+    parser.add_argument("-predict_data", default='Close')
     
     args = parser.parse_args()
     
@@ -74,6 +75,7 @@ if __name__ == '__main__':
     TODAY_RUN = datetime.today().strftime("%Y%m%d")
     TOKEN = STOCK_TICKER + '_' + TODAY_RUN + '_' + secrets.token_hex(16)
     PREDICT = args.predict
+    PREDICT_DATA = arfs.predict_data
     print('Ticker: ' + STOCK_TICKER)
     print('Start Date: ' + STOCK_START_DATE.strftime("%Y-%m-%d"))
     print('Validation Date: ' + STOCK_START_DATE.strftime("%Y-%m-%d"))
@@ -88,6 +90,7 @@ if __name__ == '__main__':
                                        STOCK_VALIDATION_DATE, 
                                        PROJECT_FOLDER, 
                                        PREDICT,
+                                       PREDICT_DATA,
                                        EPOCHS,
                                        TIME_STEPS,
                                        TOKEN,

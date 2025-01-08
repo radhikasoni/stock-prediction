@@ -1,34 +1,21 @@
-# Copyright 2020-2024 Jordi Corbilla. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ==============================================================================
 import os
 import matplotlib.pyplot as plt
 
 
 class Plotter:
-    def __init__(self, blocking, project_folder, short_name, currency, stock_ticker):
+    def __init__(self, blocking, project_folder, short_name, currency, stock_ticker, predict):
         self.blocking = blocking
         self.project_folder = project_folder
         self.short_name = short_name
         self.currency = currency
         self.stock_ticker = stock_ticker
+        self.predict_data = predict_data
 
     def plot_histogram_data_split(self, training_data, test_data, validation_date):
         print("plotting Data and Histogram")
         plt.figure(figsize=(12, 5))
-        plt.plot(training_data.Close, color='green')
-        plt.plot(test_data.Close, color='red')
+        plt.plot(training_data[self.predict_data], color='green')
+        plt.plot(test_data[self.predict_data], color='red')
         plt.ylabel('Price [' + self.currency + ']')
         plt.xlabel("Date")
         plt.legend(["Training Data", "Validation Data >= " + validation_date.strftime("%Y-%m-%d")])
@@ -70,7 +57,7 @@ class Plotter:
         print("plotting predictions")
         plt.figure(figsize=(14, 5))
         plt.plot(price_predicted[self.stock_ticker + '_predicted'], color='red', label='Predicted [' + self.short_name + '] price')
-        plt.plot(test_data.Close, color='green', label='Actual [' + self.short_name + '] price')
+        plt.plot(test_data[self.predict_data], color='green', label='Actual [' + self.short_name + '] price')
         plt.xlabel('Time')
         plt.ylabel('Price [' + self.currency + ']')
         plt.legend()

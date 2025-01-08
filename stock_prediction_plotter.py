@@ -37,7 +37,7 @@ class Plotter:
         plt.ylabel('Loss')
         plt.title('Loss/Validation Loss')
         plt.legend(loc='upper right')
-        plt.savefig(os.path.join(self.project_folder, '_' + self.predict_data + '_loss.png'))
+        plt.savefig(os.path.join(self.project_folder, self.predict_data + '_loss.png'))
         plt.pause(0.001)
         plt.show(block=self.blocking)
 
@@ -49,7 +49,7 @@ class Plotter:
         plt.ylabel('MSE')
         plt.title('MSE/Validation MSE')
         plt.legend(loc='upper right')
-        plt.savefig(os.path.join(self.project_folder, '_' + self.predict_data + '_MSE.png'))
+        plt.savefig(os.path.join(self.project_folder, self.predict_data + '_MSE.png'))
         plt.pause(0.001)
         plt.show(block=self.blocking)
 

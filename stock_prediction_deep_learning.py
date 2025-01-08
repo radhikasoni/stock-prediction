@@ -24,7 +24,8 @@ def train_LSTM_network(stock):
     history = model.fit(x_train, y_train, epochs=stock.get_epochs(), batch_size=stock.get_batch_size(), validation_data=(x_test, y_test),
                         callbacks=[lstm.get_callback()])
     print("saving weights")
-    model.save(os.path.join(stock.get_project_folder(), 'model_weights.h5'))
+    filename = f"{stock.get_predict_data()}_model_weights.h5"
+    model.save(os.path.join(stock.get_project_folder(), filename))
 
     plotter.plot_loss(history)
     plotter.plot_mse(history)
@@ -39,7 +40,7 @@ def train_LSTM_network(stock):
     test_predictions_baseline = model.predict(x_test)
     test_predictions_baseline = data.get_min_max().inverse_transform(test_predictions_baseline)
     test_predictions_baseline = pd.DataFrame(test_predictions_baseline)
-    test_predictions_baseline.to_csv(os.path.join(stock.get_project_folder(), 'predictions.csv'))
+    test_predictions_baseline.to_csv(os.path.join(stock.get_project_folder(), f"{stock.get_predict_data()}_predictions.csv"))
 
     test_predictions_baseline.rename(columns={0: stock.get_ticker() + '_predicted'}, inplace=True)
     test_predictions_baseline = test_predictions_baseline.round(decimals=0)

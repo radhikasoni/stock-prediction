@@ -20,11 +20,11 @@ class Plotter:
         plt.xlabel("Date")
         plt.legend(["Training Data", "Validation Data >= " + validation_date.strftime("%Y-%m-%d")])
         plt.title(self.short_name)
-        plt.savefig(os.path.join(self.project_folder, self.short_name.strip().replace('.', '') + '_price.png'))
+        plt.savefig(os.path.join(self.project_folder, self.short_name.strip().replace('.', '') + '_' + self.predict_data + '_price.png'))
 
         fig, ax = plt.subplots()
         training_data.hist(ax=ax)
-        fig.savefig(os.path.join(self.project_folder, self.short_name.strip().replace('.', '') + '_hist.png'))
+        fig.savefig(os.path.join(self.project_folder, self.short_name.strip().replace('.', '') + '_' + self.predict_data  + '_hist.png'))
 
         plt.pause(0.001)
         plt.show(block=self.blocking)
@@ -37,7 +37,7 @@ class Plotter:
         plt.ylabel('Loss')
         plt.title('Loss/Validation Loss')
         plt.legend(loc='upper right')
-        plt.savefig(os.path.join(self.project_folder, 'loss.png'))
+        plt.savefig(os.path.join(self.project_folder, '_' + self.predict_data + '_loss.png'))
         plt.pause(0.001)
         plt.show(block=self.blocking)
 
@@ -49,7 +49,7 @@ class Plotter:
         plt.ylabel('MSE')
         plt.title('MSE/Validation MSE')
         plt.legend(loc='upper right')
-        plt.savefig(os.path.join(self.project_folder, 'MSE.png'))
+        plt.savefig(os.path.join(self.project_folder, '_' + self.predict_data + '_MSE.png'))
         plt.pause(0.001)
         plt.show(block=self.blocking)
 
@@ -62,6 +62,6 @@ class Plotter:
         plt.ylabel('Price [' + self.currency + ']')
         plt.legend()
         plt.title('Prediction')
-        plt.savefig(os.path.join(self.project_folder, self.short_name.strip().replace('.', '') + '_prediction.png'))
+        plt.savefig(os.path.join(self.project_folder, self.short_name.strip().replace('.', '') + '_' + self.predict_data +'_prediction.png'))
         plt.pause(0.001)
         plt.show(block=self.blocking)

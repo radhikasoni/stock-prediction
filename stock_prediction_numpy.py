@@ -39,11 +39,11 @@ class StockData:
         data = yf.download([self._stock.get_ticker()], interval='5m', start=self._stock.get_start_date(), end=end_date)
         # Reset index to access the datetime column
         data.reset_index(inplace=True)
-        data.to_csv(os.path.join(project_folder, 'downloaded_data_'+self._stock.get_ticker()+'.csv'))
+        data.to_csv(os.path.join(project_folder, 'downloaded_data_'+self._stock.get_ticker()+'.csv'), index=False)
         #print(data)
 
         data=pd.read_csv(os.path.join(project_folder, 'downloaded_data_'+self._stock.get_ticker()+'.csv'))
-        data=data.drop(index=0)
+        data=data.drop(index=0, drop=True, inplace=True)
         # Reset index to access the datetime column
         data.reset_index(inplace=True)
         
@@ -72,7 +72,7 @@ class StockData:
         data['Minute'] = data['Datetime'].dt.minute
         # Drop rows with NaN values
         data.dropna(inplace=True)
-        data.to_csv(os.path.join(project_folder, 'data_'+self._stock.get_ticker()+'.csv'))
+        data.to_csv(os.path.join(project_folder, 'data_'+self._stock.get_ticker()+'.csv'), index=False)
         training_data = data[data['Datetime'] < pd.Timestamp(self._stock.get_validation_date()).tz_localize('UTC')][['Datetime', 'Close', 'Open', 'High', 'Low', 'Delta', 'RSI', 'MACD', 'MACD_signal', 'BB_upper', 'BB_lower', 'Hour', 'Minute']].copy()
         test_data = data[data['Datetime'] >= pd.Timestamp(self._stock.get_validation_date()).tz_localize('UTC')][['Datetime', 'Close', 'Open', 'High', 'Low', 'Delta', 'RSI', 'MACD', 'MACD_signal', 'BB_upper', 'BB_lower', 'Hour', 'Minute']].copy()
         training_data = training_data.set_index('Datetime')

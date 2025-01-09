@@ -58,8 +58,8 @@ def train_LSTM_network(stock):
     
     # Perform inverse scaling on predicted values
     predicted_close = data.get_min_max().inverse_transform(np.column_stack((
-        np.zeros((len(predictions), num_features - 1)),  # Placeholder for other features
-        predictions  # Predicted 'Close' values
+        np.zeros((len(test_predictions_baseline), num_features - 1)),  # Placeholder for other features
+        test_predictions_baseline  # Predicted 'Close' values
     )))[:, -1]  # Extract the 'Close' column (last column after inverse transform)
 
     # Perform inverse scaling on actual values

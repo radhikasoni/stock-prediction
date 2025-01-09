@@ -42,7 +42,7 @@ class StockData:
         data.to_csv(os.path.join(project_folder, 'downloaded_data_'+self._stock.get_ticker()+'.csv'))
         #print(data)
 
-        data=pd.read_csv(os.path.join(PROJECT_FOLDER, 'downloaded_data_'+STOCK_TICKER+'.csv'))
+        data=pd.read_csv(os.path.join(project_folder, 'downloaded_data_'+self._stock.get_ticker()+'.csv'))
         data=data.drop(index=0)
         # Reset index to access the datetime column
         data.reset_index(inplace=True)

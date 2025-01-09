@@ -37,7 +37,7 @@ def train_LSTM_network(stock):
     print("plotting prediction results")
     test_predictions_baseline = model.predict(x_test)
 
-    num_features = 5  # Update this based on your actual data
+    num_features = 4  # Update this based on your actual data
     test_predictions_baseline_padded = np.zeros((test_predictions_baseline.shape[0], num_features))
     test_predictions_baseline_padded[:, 0] = test_predictions_baseline.flatten()
 

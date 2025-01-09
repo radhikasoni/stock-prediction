@@ -99,10 +99,9 @@ class StockData:
     def pseudo_random(self):
         return random.uniform(0.01, 0.03)
 
-    def generate_future_data(self, time_steps, min_max, start_date, end_date, latest_close_price, latest_open_price, latest_low_price, latest_high_price, latest_volume_price, latest_adj_close_price):
+    def generate_future_data(self, time_steps, min_max, start_date, end_date, latest_close_price, latest_open_price, latest_low_price, latest_high_price, latest_volume_price):
         x_future = []
         c_future = []
-        ad_c_future = []
         o_future = []
         l_future = []
         h_future = []
@@ -126,7 +125,6 @@ class StockData:
             latest_low_price = latest_low_price + (latest_low_price * random_slope)
             latest_high_price = latest_high_price + (latest_high_price * random_slope)
             latest_volume_price = latest_volume_price + (latest_volume_price * random_slope)
-            latest_adj_close_price = latest_adj_close_price + (latest_adj_close_price * random_slope)
 
             #print(original_price)
             if original_price < 0:
@@ -139,17 +137,14 @@ class StockData:
                 latest_high_price = 0
             if latest_volume_price < 0:
                 latest_volume_price = 0
-            if latest_adj_close_price < 0:
-                latest_adj_close_price = 0
 
             c_future.append(original_price)
             h_future.append(latest_high_price)
             l_future.append(latest_low_price)
             o_future.append(latest_open_price)
             v_future.append(latest_volume_price)
-            ad_c_future.append(latest_adj_close_price)
 
-        test_data = pd.DataFrame({'Datetime': x_future, 'Close': c_future, 'High': h_future, 'Low': l_future, 'Open': o_future, 'Volume': v_future, 'Adj Close': ad_c_future})
+        test_data = pd.DataFrame({'Datetime': x_future, 'Close': c_future, 'High': h_future, 'Low': l_future, 'Open': o_future, 'Volume': v_future})
         test_data = test_data.set_index('Datetime')
 
         test_scaled = min_max.fit_transform(test_data)

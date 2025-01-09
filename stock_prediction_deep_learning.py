@@ -74,7 +74,7 @@ def train_LSTM_network(stock):
     # Check for 'Datetime' column or reset the index
     if 'Datetime' not in test_data.columns:
         test_data.reset_index(inplace=True)  # Reset the index to expose 'Datetime'
-    plotter.project_plot_predictions_data(predicted_close, actual_close)
+    plotter.project_plot_predictions_data(predicted_close, actual_close, datetime)
     print("prediction is finished")
 
 

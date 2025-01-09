@@ -127,7 +127,6 @@ class StockData:
             latest_open_price = latest_open_price + (latest_open_price * random_slope)
             latest_low_price = latest_low_price + (latest_low_price * random_slope)
             latest_high_price = latest_high_price + (latest_high_price * random_slope)
-            latest_volume_price = latest_volume_price + (latest_volume_price * random_slope)
 
             #print(original_price)
             if original_price < 0:

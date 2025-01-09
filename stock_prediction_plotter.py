@@ -64,3 +64,16 @@ class Plotter:
         plt.savefig(os.path.join(self.project_folder, self.short_name.strip().replace('.', '') + '_prediction.png'))
         plt.pause(0.001)
         plt.show(block=self.blocking)
+
+    def project_plot_predictions_data(self, price_predicted, actual_data):
+        print("plotting predictions")
+        plt.figure(figsize=(14, 5))
+        plt.plot(price_predicted, color='red', label='Predicted [' + self.short_name + '] price')
+        plt.plot(actual_data, color='green', label='Actual [' + self.short_name + '] price')
+        plt.xlabel('Time')
+        plt.ylabel('Price [' + self.currency + ']')
+        plt.legend()
+        plt.title('Prediction')
+        plt.savefig(os.path.join(self.project_folder, self.short_name.strip().replace('.', '') + '_prediction.png'))
+        plt.pause(0.001)
+        plt.show(block=self.blocking)

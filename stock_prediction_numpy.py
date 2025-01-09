@@ -38,12 +38,12 @@ class StockData:
         print('End Date: ' + end_date.strftime("%Y-%m-%d"))
         data = yf.download([self._stock.get_ticker()], interval='5m', start=self._stock.get_start_date(), end=end_date)
         # Reset index to access the datetime column
-        data.reset_index(inplace=True)
+        data.reset_index(inplace=True, drop=True)
         data.to_csv(os.path.join(project_folder, 'downloaded_data_'+self._stock.get_ticker()+'.csv'), index=False)
         #print(data)
 
         data=pd.read_csv(os.path.join(project_folder, 'downloaded_data_'+self._stock.get_ticker()+'.csv'))
-        data=data.drop(index=0, drop=True, inplace=True)
+        data=data.drop(index=0)
         # Reset index to access the datetime column
         data.reset_index(inplace=True)
         

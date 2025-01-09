@@ -37,7 +37,6 @@ class StockData:
         end_date = datetime.today()
         print('End Date: ' + end_date.strftime("%Y-%m-%d"))
         data = yf.download([self._stock.get_ticker()], interval='5m', start=self._stock.get_start_date(), end=end_date)
-        data=data.drop(index=0)
         # Reset index to access the datetime column
         data.reset_index(inplace=True)
         data['Close']=pd.to_numeric(data['Close'], errors='coerce')

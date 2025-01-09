@@ -42,6 +42,37 @@ class StockData:
         data.to_csv(os.path.join(project_folder, 'downloaded_data_'+self._stock.get_ticker()+'.csv'))
         #print(data)
 
+        data=pd.read_csv(os.path.join(PROJECT_FOLDER, 'downloaded_data_'+STOCK_TICKER+'.csv'))
+        data=data.drop(index=0)
+        # Reset index to access the datetime column
+        data.reset_index(inplace=True)
+        
+        data['Close']=pd.to_numeric(data['Close'], errors='coerce')
+        # Step 2: Add Technical Indicators
+        data['Delta'] = data['Close'].diff()  # Delta (difference between consecutive Close prices)
+        data['RSI'] = RSIIndicator(close=data['Close'], window=14).rsi()
+        
+        # Calculate MACD and Signal Line
+        macd = MACD(close=data['Close'], window_slow=26, window_fast=12, window_sign=9)
+        data['MACD'] = macd.macd()
+        data['MACD_signal'] = macd.macd_signal()
+        
+        
+        # Add Bollinger Bands
+        bollinger = BollingerBands(close=data['Close'], window=20)
+        data['BB_upper'] = bollinger.bollinger_hband()
+        data['BB_lower'] = bollinger.bollinger_lband()
+        
+        # Add Lag Features
+        for lag in [1, 3, 5, 10]:
+            data[f'Close_lag_{lag}'] = data['Close'].shift(lag)
+        data['Datetime'] = pd.to_datetime(data['Datetime'], errors='coerce')
+        # Add Time-Based Features
+        data['Hour'] = data['Datetime'].dt.hour
+        data['Minute'] = data['Datetime'].dt.minute
+        # Drop rows with NaN values
+        data.dropna(inplace=True)
+        data.to_csv(os.path.join(project_folder, 'data_'+self._stock.get_ticker()+'.csv'))
         training_data = data[data['Datetime'] < pd.Timestamp(self._stock.get_validation_date()).tz_localize('UTC')][['Datetime', 'Close', 'High', 'Low', 'Open']].copy()
         test_data = data[data['Datetime'] >= pd.Timestamp(self._stock.get_validation_date()).tz_localize('UTC')][['Datetime', 'Close', 'High', 'Low', 'Open']].copy()
         training_data = training_data.set_index('Datetime')

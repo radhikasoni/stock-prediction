@@ -33,7 +33,7 @@ class StockData:
     def get_stock_currency(self):
         return self._sec.info['currency']
 
-    def EMA(Close_arr, n):
+    def EMA(self, Close_arr, n):
         a = 2 / (n + 1)
         EMA_n = np.zeros(len(Close_arr))
         EMA_n[:n] = np.nan
@@ -47,22 +47,22 @@ class StockData:
     
         return EMA_n
     
-    def gains(Close_arr):
+    def gains(self, Close_arr):
         gain_arr = np.diff(Close_arr)
         gain_arr[gain_arr < 0] = 0
         return gain_arr
     
-    def losses(Close_arr):
+    def losses(self, Close_arr):
         loss_arr = np.diff(Close_arr)
         loss_arr[loss_arr > 0] = 0
         return np.abs(loss_arr)
 
-    def RSI(Close_arr, n=14):
-        gain_arr = gains(Close_arr)
-        loss_arr = losses(Close_arr)
+    def RSI(self, Close_arr, n=14):
+        gain_arr = self.gains(Close_arr)
+        loss_arr = self.losses(Close_arr)
     
-        EMA_u = EMA(gain_arr, n)
-        EMA_d = EMA(loss_arr, n)
+        EMA_u = self.EMA(gain_arr, n)
+        EMA_d = self.EMA(loss_arr, n)
     
         EMA_diff = EMA_u / EMA_d
     
@@ -141,7 +141,7 @@ class StockData:
         data['Volume_MA'] = data['Volume'].rolling(window=20).mean()
         # Use the closing prices to calculate RSI
         Close = data['Close'].values
-        RSI14 = RSI(Close, n=14)
+        RSI14 = self.RSI(Close, n=14)
         
         # Ensure the lengths match by trimming the RSI array if necessary
         RSI14 = RSI14[:len(df)]

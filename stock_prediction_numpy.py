@@ -147,7 +147,7 @@ class StockData:
         RSI14 = RSI14[:len(data)]
         
         # Adding the RSI to the dataframe
-        df['RSI14'] = RSI14
+        data['RSI14'] = RSI14
         # Drop rows with NaN values
         data.dropna(inplace=True)
         data.to_csv(os.path.join(project_folder, 'data_'+self._stock.get_ticker()+'.csv'), index=False)

@@ -54,7 +54,7 @@ class LongShortTermMemory:
         # #                          show_layer_names=True)
 
         model = Sequential([
-            LSTM(64, return_sequences=True, input_shape=(X_train.shape[1], X_train.shape[2])),
+            LSTM(64, return_sequences=True, input_shape=(x_train.shape[1], x_train.shape[2])),
             Dropout(0.2),
             LSTM(64, return_sequences=False),
             Dropout(0.2),

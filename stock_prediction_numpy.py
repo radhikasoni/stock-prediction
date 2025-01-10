@@ -137,6 +137,7 @@ class StockData:
         data.loc[data['Close'] < data['Lower_Band'], 'BB_Text'] = 'Price is below lower Bollinger Band, potentially oversold.'
 
         # Volume
+        data['Volume'] = pd.to_numeric(data['Volume'], errors='coerce')
         data['Volume_MA'] = data['Volume'].rolling(window=20).mean()
         # Use the closing prices to calculate RSI
         Close = data['Close'].values

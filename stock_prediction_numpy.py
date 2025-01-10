@@ -144,7 +144,7 @@ class StockData:
         RSI14 = self.RSI(Close, n=14)
         
         # Ensure the lengths match by trimming the RSI array if necessary
-        RSI14 = RSI14[:len(df)]
+        RSI14 = RSI14[:len(data)]
         
         # Adding the RSI to the dataframe
         df['RSI14'] = RSI14

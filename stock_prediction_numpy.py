@@ -121,9 +121,9 @@ class StockData:
         data['BB_upper'] = bollinger.bollinger_hband()
         data['BB_lower'] = bollinger.bollinger_lband()
 
-        # Add Time-Based Features
-        data['Hour'] = data['Datetime'].dt.hour
-        data['Minute'] = data['Datetime'].dt.minute
+        # # Add Time-Based Features
+        # data['Hour'] = data['Datetime'].dt.hour
+        # data['Minute'] = data['Datetime'].dt.minute
     
         # # RSI interpretation
         # data['RSI_Text'] = ''
@@ -158,7 +158,7 @@ class StockData:
         #print(test_data)
 
         # train_scaled = self._min_max.fit_transform(training_data[['Open', 'High', 'Low', 'Close', 'Volume', 'Delta', 'RSI', 'MACD', 'MACD_signal', 'BB_upper', 'BB_lower', 'Hour', 'Minute']])
-        train_scaled = self._min_max.fit_transform(training_data[['Open', 'High', 'Low', 'Close', 'Volume', 'RSI', 'EMA12', 'EMA26', 'MACD', 'Signal_Line', 'BB_upper', 'BB_lower', 'Hour', 'Minute']])
+        train_scaled = self._min_max.fit_transform(training_data[['Open', 'High', 'Low', 'Close', 'Volume', 'RSI', 'EMA12', 'EMA26', 'MACD', 'Signal_Line', 'BB_upper', 'BB_lower']])
         self.__data_verification(train_scaled)
 
         # Training Data Transformation
@@ -174,7 +174,7 @@ class StockData:
         total_data = pd.concat((training_data, test_data), axis=0)
         inputs = total_data[len(total_data) - len(test_data) - time_steps:]
         # test_scaled = self._min_max.fit_transform(inputs[['Open', 'High', 'Low', 'Close', 'Volume', 'Delta', 'RSI', 'MACD', 'MACD_signal', 'BB_upper', 'BB_lower', 'Hour', 'Minute']])
-        test_scaled = self._min_max.fit_transform(inputs[['Open', 'High', 'Low', 'Close', 'Volume', 'RSI', 'EMA12', 'EMA26', 'MACD', 'Signal_Line', 'BB_upper', 'BB_lower', 'Hour', 'Minute']])
+        test_scaled = self._min_max.fit_transform(inputs[['Open', 'High', 'Low', 'Close', 'Volume', 'RSI', 'EMA12', 'EMA26', 'MACD', 'Signal_Line', 'BB_upper', 'BB_lower']])
 
         # Testing Data Transformation
         x_test = []

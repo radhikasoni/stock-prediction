@@ -103,9 +103,6 @@ class StockData:
         # for lag in [1, 3, 5, 10]:
         #     data[f'Close_lag_{lag}'] = data['Close'].shift(lag)
         # data['Datetime'] = pd.to_datetime(data['Datetime'], errors='coerce')
-        # # Add Time-Based Features
-        # data['Hour'] = data['Datetime'].dt.hour
-        # data['Minute'] = data['Datetime'].dt.minute
 
         delta = data['Close'].diff()
         gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
@@ -119,35 +116,37 @@ class StockData:
         data['MACD'] = data['EMA12'] - data['EMA26']
         data['Signal_Line'] = data['MACD'].ewm(span=9, adjust=False).mean()
     
-        # Bollinger Bands
-        data['20_MA'] = data['Close'].rolling(window=20).mean()
-        data['20_SD'] = data['Close'].rolling(window=20).std()
-        data['Upper_Band'] = data['20_MA'] + (2 * data['20_SD'])
-        data['Lower_Band'] = data['20_MA'] - (2 * data['20_SD'])
-    
-        # Additional Indicators
-        # RSI interpretation
-        data['RSI_Text'] = ''
-        data.loc[data['RSI'] < 30, 'RSI_Text'] = 'Readings below 30 generally indicate that the stock is oversold.'
-        data.loc[data['RSI'] > 70, 'RSI_Text'] = 'Readings above 70 generally indicate that the stock is overbought.'
-    
-        # Bollinger Bands indication
-        data['BB_Text'] = ''
-        data.loc[data['Close'] > data['Upper_Band'], 'BB_Text'] = 'Price is above upper Bollinger Band, potentially overbought.'
-        data.loc[data['Close'] < data['Lower_Band'], 'BB_Text'] = 'Price is below lower Bollinger Band, potentially oversold.'
+        # Add Bollinger Bands
+        bollinger = BollingerBands(close=data['Close'], window=20)
+        data['BB_upper'] = bollinger.bollinger_hband()
+        data['BB_lower'] = bollinger.bollinger_lband()
 
-        # Volume
-        data['Volume'] = pd.to_numeric(data['Volume'], errors='coerce')
-        data['Volume_MA'] = data['Volume'].rolling(window=20).mean()
-        # Use the closing prices to calculate RSI
-        Close = data['Close'].values
-        RSI14 = self.RSI(Close, n=14)
+        # Add Time-Based Features
+        data['Hour'] = data['Datetime'].dt.hour
+        data['Minute'] = data['Datetime'].dt.minute
+    
+        # # RSI interpretation
+        # data['RSI_Text'] = ''
+        # data.loc[data['RSI'] < 30, 'RSI_Text'] = 'Readings below 30 generally indicate that the stock is oversold.'
+        # data.loc[data['RSI'] > 70, 'RSI_Text'] = 'Readings above 70 generally indicate that the stock is overbought.'
+    
+        # # Bollinger Bands indication
+        # data['BB_Text'] = ''
+        # data.loc[data['Close'] > data['Upper_Band'], 'BB_Text'] = 'Price is above upper Bollinger Band, potentially overbought.'
+        # data.loc[data['Close'] < data['Lower_Band'], 'BB_Text'] = 'Price is below lower Bollinger Band, potentially oversold.'
+
+        # # Volume
+        # data['Volume'] = pd.to_numeric(data['Volume'], errors='coerce')
+        # data['Volume_MA'] = data['Volume'].rolling(window=20).mean()
+        # # Use the closing prices to calculate RSI
+        # Close = data['Close'].values
+        # RSI14 = self.RSI(Close, n=14)
         
-        # Ensure the lengths match by trimming the RSI array if necessary
-        RSI14 = RSI14[:len(data)]
+        # # Ensure the lengths match by trimming the RSI array if necessary
+        # RSI14 = RSI14[:len(data)]
         
-        # Adding the RSI to the dataframe
-        data['RSI14'] = RSI14
+        # # Adding the RSI to the dataframe
+        # data['RSI14'] = RSI14
         # Drop rows with NaN values
         data.dropna(inplace=True)
         data.to_csv(os.path.join(project_folder, 'data_'+self._stock.get_ticker()+'.csv'), index=False)
@@ -159,7 +158,7 @@ class StockData:
         #print(test_data)
 
         # train_scaled = self._min_max.fit_transform(training_data[['Open', 'High', 'Low', 'Close', 'Volume', 'Delta', 'RSI', 'MACD', 'MACD_signal', 'BB_upper', 'BB_lower', 'Hour', 'Minute']])
-        train_scaled = self._min_max.fit_transform(training_data[['Open', 'High', 'Low', 'Close', 'Volume', 'RSI', 'EMA12', 'EMA26', 'MACD', 'Signal_Line', '20_MA', '20_SD', 'Upper_Band', 'Lower_Band', 'RSI_Text', 'BB_Text', 'Volume_MA', 'RSI14']])
+        train_scaled = self._min_max.fit_transform(training_data[['Open', 'High', 'Low', 'Close', 'Volume', 'RSI', 'EMA12', 'EMA26', 'MACD', 'Signal_Line', 'BB_upper', 'BB_lower', 'Hour', 'Minute']])
         self.__data_verification(train_scaled)
 
         # Training Data Transformation
@@ -175,7 +174,7 @@ class StockData:
         total_data = pd.concat((training_data, test_data), axis=0)
         inputs = total_data[len(total_data) - len(test_data) - time_steps:]
         # test_scaled = self._min_max.fit_transform(inputs[['Open', 'High', 'Low', 'Close', 'Volume', 'Delta', 'RSI', 'MACD', 'MACD_signal', 'BB_upper', 'BB_lower', 'Hour', 'Minute']])
-        test_scaled = self._min_max.fit_transform(inputs[['Open', 'High', 'Low', 'Close', 'Volume', 'RSI', 'EMA12', 'EMA26', 'MACD', 'Signal_Line', '20_MA', '20_SD', 'Upper_Band', 'Lower_Band', 'RSI_Text', 'BB_Text', 'Volume_MA', 'RSI14']])
+        test_scaled = self._min_max.fit_transform(inputs[['Open', 'High', 'Low', 'Close', 'Volume', 'RSI', 'EMA12', 'EMA26', 'MACD', 'Signal_Line', 'BB_upper', 'BB_lower', 'Hour', 'Minute']])
 
         # Testing Data Transformation
         x_test = []

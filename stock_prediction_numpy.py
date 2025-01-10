@@ -71,14 +71,14 @@ class StockData:
         # Drop rows with NaN values
         data.dropna(inplace=True)
         data.to_csv(os.path.join(project_folder, 'data_'+self._stock.get_ticker()+'.csv'), index=False)
-        training_data = data[data['Datetime'] < pd.Timestamp(self._stock.get_validation_date()).tz_localize('UTC')][['Datetime', 'Close', 'Open', 'High', 'Low', 'Delta', 'RSI', 'MACD', 'MACD_signal', 'BB_upper', 'BB_lower', 'Hour', 'Minute']].copy()
-        test_data = data[data['Datetime'] >= pd.Timestamp(self._stock.get_validation_date()).tz_localize('UTC')][['Datetime', 'Close', 'Open', 'High', 'Low', 'Delta', 'RSI', 'MACD', 'MACD_signal', 'BB_upper', 'BB_lower', 'Hour', 'Minute']].copy()
+        training_data = data[data['Datetime'] < pd.Timestamp(self._stock.get_validation_date()).tz_localize('UTC')].copy()
+        test_data = data[data['Datetime'] >= pd.Timestamp(self._stock.get_validation_date()).tz_localize('UTC')].copy()
         training_data = training_data.set_index('Datetime')
         # Set the data frame index using column Date
         test_data = test_data.set_index('Datetime')
         #print(test_data)
 
-        train_scaled = self._min_max.fit_transform(training_data)
+        train_scaled = self._min_max.fit_transform(training_data[['Open', 'High', 'Low', 'Close', 'Delta', 'RSI', 'MACD', 'MACD_signal', 'BB_upper', 'BB_lower', 'Hour', 'Minute']])
         self.__data_verification(train_scaled)
 
         # Training Data Transformation
@@ -93,7 +93,7 @@ class StockData:
 
         total_data = pd.concat((training_data, test_data), axis=0)
         inputs = total_data[len(total_data) - len(test_data) - time_steps:]
-        test_scaled = self._min_max.fit_transform(inputs)
+        test_scaled = self._min_max.fit_transform(inputs[['Open', 'High', 'Low', 'Close', 'Delta', 'RSI', 'MACD', 'MACD_signal', 'BB_upper', 'BB_lower', 'Hour', 'Minute']])
 
         # Testing Data Transformation
         x_test = []

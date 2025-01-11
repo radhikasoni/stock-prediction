@@ -70,8 +70,7 @@ class StockData:
         RSI_n = np.concatenate((np.full(n, np.nan), RSI_n))  # Align lengths by padding initial values with NaN
         return RSI_n
         
-    def download_transform_to_numpy(self, time_steps, project_folder):
-        end_date = datetime.today()
+    def download_transform_to_numpy(self, time_steps, project_folder, end_date):
         print('End Date: ' + end_date.strftime("%Y-%m-%d"))
         data = yf.download([self._stock.get_ticker()], interval='5m', start=self._stock.get_start_date(), end=end_date)
         # Reset index to access the datetime column

@@ -82,11 +82,9 @@ class StockData:
         data=pd.read_csv(os.path.join(project_folder, 'downloaded_data_'+self._stock.get_ticker()+'.csv'))
         
         data['Close']=pd.to_numeric(data['Close'], errors='coerce')
-        data['Open'] = pd.to_datetime(data['Open'], errors='coerce')
-        data['High'] = pd.to_datetime(data['High'], errors='coerce')
-        data['Low'] = pd.to_datetime(data['Low'], errors='coerce')
-        data['Volume'] = pd.to_datetime(data['Volume'], errors='coerce')
-        
+        data = data.drop(index=data.index[0])
+    
+        data = data.sort_index()
         # Delta
         data['Delta'] = data['Close'].diff()
         
@@ -112,7 +110,8 @@ class StockData:
         
         # Volume_MA_10
         data['Volume_MA_10'] = data['Volume'].rolling(window=10).mean()
-        
+        data['Volume'] = pd.to_numeric(data['Close'], errors='coerce')
+    
         # VWAP
         data['Cum_Price_Volume'] = (data['Close'] * data['Volume']).cumsum()
         data['Cum_Volume'] = data['Volume'].cumsum()
@@ -120,6 +119,10 @@ class StockData:
         data.drop(columns=['Cum_Price_Volume', 'Cum_Volume'], inplace=True)
         
         # ATR
+        data['High'] = pd.to_numeric(data['High'], errors='coerce')
+        data['Low'] = pd.to_numeric(data['Low'], errors='coerce')
+        data['Open'] = pd.to_numeric(data['Open'], errors='coerce')
+    
         data['High-Low'] = data['High'] - data['Low']
         data['High-Close'] = abs(data['High'] - data['Close'].shift())
         data['Low-Close'] = abs(data['Low'] - data['Close'].shift())
@@ -153,13 +156,6 @@ class StockData:
         # Doji
         data['Doji'] = abs(data['Close'] - data['Open']) / (data['High'] - data['Low']) < 0.1
         
-        # Hammer
-        data['Hammer'] = (
-            (data['High'] - data['Close']) <= 0.1 * (data['High'] - data['Low']) &  # Close near the high
-            (data['Open'] - data['Low']) >= 0.6 * (data['High'] - data['Low']) &   # Long lower shadow
-            (data['Close'] - data['Open']) < 0.1 * (data['High'] - data['Low'])    # Small body
-        )
-        
         # Bullish and Bearish Engulfing
         data['Bullish_Engulfing'] = (
             (data['Close'] > data['Open']) &
@@ -174,7 +170,7 @@ class StockData:
             (data['Open'] >= data['Close'].shift(1)) &
             (data['Close'] <= data['Open'].shift(1))
         )
-
+    
         # Drop rows with NaN values
         data.dropna(inplace=True)
         data.to_csv(os.path.join(project_folder, 'data_'+self._stock.get_ticker()+'.csv'), index=False)
@@ -185,7 +181,7 @@ class StockData:
         test_data = test_data.set_index('Datetime')
         #print(test_data)
 
-        train_scaled = self._min_max.fit_transform(training_data[['Open', 'High', 'Low', 'Close', 'Volume', 'Delta', 'RSI', 'MACD', 'Signal_Line', 'BB_upper', 'BB_lower', 'Volume', 'Volume_MA_10', 'VWAP', 'ATR', 'OBV', 'Hour', 'Minute', 'Day_of_Week', 'Is_Weekend', 'Is_Monday', 'Quarter', 'Is_Earnings_Season', 'Doji', 'Hammer', 'Bullish_Engulfing', 'Bearish_Engulfing']])
+        train_scaled = self._min_max.fit_transform(training_data[['Open', 'High', 'Low', 'Close', 'Volume', 'Delta', 'RSI', 'MACD', 'Signal_Line', 'BB_upper', 'BB_lower', 'Volume', 'Volume_MA_10', 'VWAP', 'ATR', 'OBV', 'Hour', 'Minute', 'Day_of_Week', 'Is_Weekend', 'Is_Monday', 'Quarter', 'Is_Earnings_Season', 'Doji', 'Bullish_Engulfing', 'Bearish_Engulfing']])
         self.__data_verification(train_scaled)
 
         # Training Data Transformation
@@ -200,7 +196,7 @@ class StockData:
 
         total_data = pd.concat((training_data, test_data), axis=0)
         inputs = total_data[len(total_data) - len(test_data) - time_steps:]
-        test_scaled = self._min_max.fit_transform(inputs[['Open', 'High', 'Low', 'Close', 'Volume', 'Delta', 'RSI', 'MACD', 'Signal_Line', 'BB_upper', 'BB_lower', 'Volume', 'Volume_MA_10', 'VWAP', 'ATR', 'OBV', 'Hour', 'Minute', 'Day_of_Week', 'Is_Weekend', 'Is_Monday', 'Quarter', 'Is_Earnings_Season', 'Doji', 'Hammer', 'Bullish_Engulfing', 'Bearish_Engulfing']])
+        test_scaled = self._min_max.fit_transform(inputs[['Open', 'High', 'Low', 'Close', 'Volume', 'Delta', 'RSI', 'MACD', 'Signal_Line', 'BB_upper', 'BB_lower', 'Volume', 'Volume_MA_10', 'VWAP', 'ATR', 'OBV', 'Hour', 'Minute', 'Day_of_Week', 'Is_Weekend', 'Is_Monday', 'Quarter', 'Is_Earnings_Season', 'Doji', 'Bullish_Engulfing', 'Bearish_Engulfing']])
 
         # Testing Data Transformation
         x_test = []

@@ -82,70 +82,99 @@ class StockData:
         data=pd.read_csv(os.path.join(project_folder, 'downloaded_data_'+self._stock.get_ticker()+'.csv'))
         
         data['Close']=pd.to_numeric(data['Close'], errors='coerce')
+        data['Open'] = pd.to_datetime(data['Open'], errors='coerce')
+        data['High'] = pd.to_datetime(data['High'], errors='coerce')
+        data['Low'] = pd.to_datetime(data['Low'], errors='coerce')
+        data['Volume'] = pd.to_datetime(data['Volume'], errors='coerce')
         
-        # # Step 2: Add Technical Indicators
-        # data['Delta'] = data['Close'].diff()  # Delta (difference between consecutive Close prices)
-        # data['RSI'] = RSIIndicator(close=data['Close'], window=14).rsi()
+        # Delta
+        data['Delta'] = data['Close'].diff()
         
-        # # Calculate MACD and Signal Line
-        # macd = MACD(close=data['Close'], window_slow=26, window_fast=12, window_sign=9)
-        # data['MACD'] = macd.macd()
-        # data['MACD_signal'] = macd.macd_signal()
-        
-        
-        # # Add Bollinger Bands
-        # bollinger = BollingerBands(close=data['Close'], window=20)
-        # data['BB_upper'] = bollinger.bollinger_hband()
-        # data['BB_lower'] = bollinger.bollinger_lband()
-        
-        # # Add Lag Features
-        # for lag in [1, 3, 5, 10]:
-        #     data[f'Close_lag_{lag}'] = data['Close'].shift(lag)
-
+        # RSI
         delta = data['Close'].diff()
         gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
         loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
-        RS = gain / loss
-        data['RSI'] = 100 - (100 / (1 + RS))
-    
-        # MACD (Moving Average Convergence Divergence)
+        rs = gain / loss
+        data['RSI'] = 100 - (100 / (1 + rs))
+        
+        # MACD and Signal Line
         data['EMA12'] = data['Close'].ewm(span=12, adjust=False).mean()
         data['EMA26'] = data['Close'].ewm(span=26, adjust=False).mean()
+        data['EMA50'] = data['Close'].ewm(span=50, adjust=False).mean()
+        data['EMA200'] = data['Close'].ewm(span=200, adjust=False).mean()
         data['MACD'] = data['EMA12'] - data['EMA26']
         data['Signal_Line'] = data['MACD'].ewm(span=9, adjust=False).mean()
-    
-        # Add Bollinger Bands
-        bollinger = BollingerBands(close=data['Close'], window=20)
+        
+        # Bollinger Bands
+        bollinger = BollingerBands(close=data['Close'], window=20, window_dev=2)
         data['BB_upper'] = bollinger.bollinger_hband()
         data['BB_lower'] = bollinger.bollinger_lband()
-
-        # Add Time-Based Features
+        
+        # Volume_MA_10
+        data['Volume_MA_10'] = data['Volume'].rolling(window=10).mean()
+        
+        # VWAP
+        data['Cum_Price_Volume'] = (data['Close'] * data['Volume']).cumsum()
+        data['Cum_Volume'] = data['Volume'].cumsum()
+        data['VWAP'] = data['Cum_Price_Volume'] / data['Cum_Volume']
+        data.drop(columns=['Cum_Price_Volume', 'Cum_Volume'], inplace=True)
+        
+        # ATR
+        data['High-Low'] = data['High'] - data['Low']
+        data['High-Close'] = abs(data['High'] - data['Close'].shift())
+        data['Low-Close'] = abs(data['Low'] - data['Close'].shift())
+        data['True_Range'] = data[['High-Low', 'High-Close', 'Low-Close']].max(axis=1)
+        data['ATR'] = data['True_Range'].rolling(window=14).mean()
+        data.drop(columns=['High-Low', 'High-Close', 'Low-Close', 'True_Range'], inplace=True)
+        
+        # OBV
+        data['Price_Change'] = data['Close'].diff()
+        data['Direction'] = data['Price_Change'].apply(lambda x: 1 if x > 0 else (-1 if x < 0 else 0))
+        data['OBV'] = (data['Direction'] * data['Volume']).cumsum()
+        data.drop(columns=['Price_Change', 'Direction'], inplace=True)
+        
         data['Datetime'] = pd.to_datetime(data['Datetime'], errors='coerce')
-        data['Hour'] = data['Datetime'].dt.hour
-        data['Minute'] = data['Datetime'].dt.minute
-    
-        # # RSI interpretation
-        # data['RSI_Text'] = ''
-        # data.loc[data['RSI'] < 30, 'RSI_Text'] = 'Readings below 30 generally indicate that the stock is oversold.'
-        # data.loc[data['RSI'] > 70, 'RSI_Text'] = 'Readings above 70 generally indicate that the stock is overbought.'
-    
-        # # Bollinger Bands indication
-        # data['BB_Text'] = ''
-        # data.loc[data['Close'] > data['Upper_Band'], 'BB_Text'] = 'Price is above upper Bollinger Band, potentially overbought.'
-        # data.loc[data['Close'] < data['Lower_Band'], 'BB_Text'] = 'Price is below lower Bollinger Band, potentially oversold.'
+        
+        # Add Time-Based Features
+        data['Hour'] = data['Datetime'].dt.hour  # Extract hour from datetime
+        data['Minute'] = data['Datetime'].dt.minute  # Extract minute from datetime
+        data['Day_of_Week'] = data['Datetime'].dt.dayofweek  # Monday=0, Sunday=6
+        data['Is_Weekend'] = data['Day_of_Week'].apply(lambda x: 1 if x >= 5 else 0)  # Saturday/Sunday=1, Else=0
+        data['Is_Monday'] = data['Day_of_Week'].apply(lambda x: 1 if x == 0 else 0)  # Monday=1, Else=0
+        
+        # Add Seasonality Features
+        data['Quarter'] = data['Datetime'].dt.quarter  # Quarter of the year (Q1, Q2, Q3, Q4)
+        data['Month'] = data['Datetime'].dt.month  # Extract month from datetime
+        data['Is_Earnings_Season'] = data['Month'].apply(lambda x: 1 if x in [1, 4, 7, 10] else 0)  # Earnings season
+        
+        # Optional: Drop rows with NaN in 'Datetime' (if any)
+        data.dropna(subset=['Datetime'], inplace=True)
+        
+        # Doji
+        data['Doji'] = abs(data['Close'] - data['Open']) / (data['High'] - data['Low']) < 0.1
+        
+        # Hammer
+        data['Hammer'] = (
+            (data['High'] - data['Close']) <= 0.1 * (data['High'] - data['Low']) &  # Close near the high
+            (data['Open'] - data['Low']) >= 0.6 * (data['High'] - data['Low']) &   # Long lower shadow
+            (data['Close'] - data['Open']) < 0.1 * (data['High'] - data['Low'])    # Small body
+        )
+        
+        # Bullish and Bearish Engulfing
+        data['Bullish_Engulfing'] = (
+            (data['Close'] > data['Open']) &
+            (data['Close'].shift(1) < data['Open'].shift(1)) &
+            (data['Open'] <= data['Close'].shift(1)) &
+            (data['Close'] >= data['Open'].shift(1))
+        )
+        
+        data['Bearish_Engulfing'] = (
+            (data['Close'] < data['Open']) &
+            (data['Close'].shift(1) > data['Open'].shift(1)) &
+            (data['Open'] >= data['Close'].shift(1)) &
+            (data['Close'] <= data['Open'].shift(1))
+        )
 
-        # # Volume
-        # data['Volume'] = pd.to_numeric(data['Volume'], errors='coerce')
-        # data['Volume_MA'] = data['Volume'].rolling(window=20).mean()
-        # # Use the closing prices to calculate RSI
-        # Close = data['Close'].values
-        # RSI14 = self.RSI(Close, n=14)
-        
-        # # Ensure the lengths match by trimming the RSI array if necessary
-        # RSI14 = RSI14[:len(data)]
-        
-        # # Adding the RSI to the dataframe
-        # data['RSI14'] = RSI14
         # Drop rows with NaN values
         data.dropna(inplace=True)
         data.to_csv(os.path.join(project_folder, 'data_'+self._stock.get_ticker()+'.csv'), index=False)
@@ -156,8 +185,7 @@ class StockData:
         test_data = test_data.set_index('Datetime')
         #print(test_data)
 
-        # train_scaled = self._min_max.fit_transform(training_data[['Open', 'High', 'Low', 'Close', 'Volume', 'Delta', 'RSI', 'MACD', 'MACD_signal', 'BB_upper', 'BB_lower', 'Hour', 'Minute']])
-        train_scaled = self._min_max.fit_transform(training_data[['Open', 'High', 'Low', 'Close', 'Volume', 'RSI', 'EMA12', 'EMA26', 'MACD', 'Signal_Line', 'BB_upper', 'BB_lower', 'Hour', 'Minute']])
+        train_scaled = self._min_max.fit_transform(training_data[['Open', 'High', 'Low', 'Close', 'Volume', 'Delta', 'RSI', 'MACD', 'Signal_Line', 'BB_upper', 'BB_lower', 'Volume', 'Volume_MA_10', 'VWAP', 'ATR', 'OBV', 'Hour', 'Minute', 'Day_of_Week', 'Is_Weekend', 'Is_Monday', 'Quarter', 'Is_Earnings_Season', 'Doji', 'Hammer', 'Bullish_Engulfing', 'Bearish_Engulfing']])
         self.__data_verification(train_scaled)
 
         # Training Data Transformation
@@ -172,8 +200,7 @@ class StockData:
 
         total_data = pd.concat((training_data, test_data), axis=0)
         inputs = total_data[len(total_data) - len(test_data) - time_steps:]
-        # test_scaled = self._min_max.fit_transform(inputs[['Open', 'High', 'Low', 'Close', 'Volume', 'Delta', 'RSI', 'MACD', 'MACD_signal', 'BB_upper', 'BB_lower', 'Hour', 'Minute']])
-        test_scaled = self._min_max.fit_transform(inputs[['Open', 'High', 'Low', 'Close', 'Volume', 'RSI', 'EMA12', 'EMA26', 'MACD', 'Signal_Line', 'BB_upper', 'BB_lower', 'Hour', 'Minute']])
+        test_scaled = self._min_max.fit_transform(inputs[['Open', 'High', 'Low', 'Close', 'Volume', 'Delta', 'RSI', 'MACD', 'Signal_Line', 'BB_upper', 'BB_lower', 'Volume', 'Volume_MA_10', 'VWAP', 'ATR', 'OBV', 'Hour', 'Minute', 'Day_of_Week', 'Is_Weekend', 'Is_Monday', 'Quarter', 'Is_Earnings_Season', 'Doji', 'Hammer', 'Bullish_Engulfing', 'Bearish_Engulfing']])
 
         # Testing Data Transformation
         x_test = []

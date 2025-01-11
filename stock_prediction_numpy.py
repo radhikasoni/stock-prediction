@@ -185,7 +185,9 @@ class StockData:
         #print(test_data)
 
         # train_scaled = self._min_max.fit_transform(training_data[['Open', 'High', 'Low', 'Close', 'Volume', 'Delta', 'RSI', 'MACD', 'Signal_Line', 'BB_upper', 'BB_lower', 'Volume_MA_10', 'VWAP', 'ATR', 'OBV', 'Hour', 'Minute', 'Day_of_Week', 'Is_Weekend', 'Is_Monday', 'Quarter', 'Is_Earnings_Season', 'Doji', 'Bullish_Engulfing', 'Bearish_Engulfing']])
-        train_scaled = self._min_max.fit_transform(training_data[['Open', 'High', 'Low', 'Close', 'Volume', 'Delta', 'RSI', 'MACD', 'Signal_Line', 'BB_upper', 'BB_lower', 'Volume_MA_10', 'VWAP', 'ATR', 'OBV', 'Hour', 'Minute']])
+        # train_scaled = self._min_max.fit_transform(training_data[['Open', 'High', 'Low', 'Close', 'Volume', 'Delta', 'RSI', 'MACD', 'Signal_Line', 'BB_upper', 'BB_lower', 'Volume_MA_10', 'VWAP', 'ATR', 'OBV', 'Hour', 'Minute']])
+        train_scaled = self._min_max.fit_transform(training_data[['Open', 'High', 'Low', 'Close', 'Volume']])
+        
         self.__data_verification(train_scaled)
 
         # Training Data Transformation
@@ -201,7 +203,8 @@ class StockData:
         total_data = pd.concat((training_data, test_data), axis=0)
         inputs = total_data[len(total_data) - len(test_data) - time_steps:]
         # test_scaled = self._min_max.fit_transform(inputs[['Open', 'High', 'Low', 'Close', 'Volume', 'Delta', 'RSI', 'MACD', 'Signal_Line', 'BB_upper', 'BB_lower', 'Volume_MA_10', 'VWAP', 'ATR', 'OBV', 'Hour', 'Minute', 'Day_of_Week', 'Is_Weekend', 'Is_Monday', 'Quarter', 'Is_Earnings_Season', 'Doji', 'Bullish_Engulfing', 'Bearish_Engulfing']])
-        test_scaled = self._min_max.fit_transform(inputs[['Open', 'High', 'Low', 'Close', 'Volume', 'Delta', 'RSI', 'MACD', 'Signal_Line', 'BB_upper', 'BB_lower', 'Volume_MA_10', 'VWAP', 'ATR', 'OBV', 'Hour', 'Minute']])
+        # test_scaled = self._min_max.fit_transform(inputs[['Open', 'High', 'Low', 'Close', 'Volume', 'Delta', 'RSI', 'MACD', 'Signal_Line', 'BB_upper', 'BB_lower', 'Volume_MA_10', 'VWAP', 'ATR', 'OBV', 'Hour', 'Minute']])
+        test_scaled = self._min_max.fit_transform(inputs[['Open', 'High', 'Low', 'Close', 'Volume']])
         # Testing Data Transformation
         x_test = []
         y_test = []

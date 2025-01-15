@@ -192,9 +192,11 @@ class StockData:
         # Training Data Transformation
         x_train = []
         y_train = []
-        for i in range(time_steps, train_scaled.shape[0]):
+        # for i in range(time_steps, train_scaled.shape[0]):
+        for i in range(time_steps, len(train_scaled)):
             x_train.append(train_scaled[i - time_steps:i])
-            y_train.append(train_scaled[i, 0])
+            # y_train.append(train_scaled[i, 0])
+            y_train.append(train_scaled[i, 3])
 
         x_train, y_train = np.array(x_train), np.array(y_train)
         # x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
@@ -206,9 +208,11 @@ class StockData:
         # Testing Data Transformation
         x_test = []
         y_test = []
-        for i in range(time_steps, test_scaled.shape[0]):
+        # for i in range(time_steps, test_scaled.shape[0]):
+        for i in range(time_steps, len(test_scaled)):
             x_test.append(test_scaled[i - time_steps:i])
-            y_test.append(test_scaled[i, 0])
+            # y_test.append(test_scaled[i, 0])
+            y_test.append(test_scaled[i, 3])
 
         x_test, y_test = np.array(x_test), np.array(y_test)
         # x_test = np.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1))
